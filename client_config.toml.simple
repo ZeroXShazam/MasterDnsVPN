@@ -71,6 +71,15 @@ BASE_ENCODE_DATA = false
 # Timeout (seconds) for normal DNS query/response operations.
 DNS_QUERY_TIMEOUT = 5.0
 
+# Compression for client -> server payloads (upload direction).
+# 0=OFF, 1=ZSTD, 2=LZ4, 3=ZLIB
+# Payloads <=100 bytes are never compressed to reduce CPU usage.
+UPLOAD_COMPRESSION_TYPE = 3
+
+# Compression for server -> client payloads (download direction).
+# Use same enum values as UPLOAD_COMPRESSION_TYPE.
+DOWNLOAD_COMPRESSION_TYPE = 3
+
 # ------------------------------------------------------------------------------
 # 4) MTU Discovery & Successful Result Export
 # ------------------------------------------------------------------------------
@@ -142,3 +151,4 @@ LOG_LEVEL = "INFO"
 # 7) Version Marker
 # ------------------------------------------------------------------------------
 CONFIG_VERSION = 2.0
+

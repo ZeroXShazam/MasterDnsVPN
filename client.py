@@ -10,7 +10,6 @@ import os
 import random
 import signal
 import socket
-import struct
 import sys
 import time
 from typing import Optional, Tuple
@@ -24,6 +23,14 @@ from dns_utils.utils import (
     async_sendto,
     generate_random_hex_text,
     getLogger,
+)
+
+from dns_utils.compression import (
+    Compression_Type,
+    normalize_compression_type,
+    get_compression_name,
+    compress_payload,
+    decompress_payload,
 )
 
 # Ensure UTF-8 output for consistent logging
@@ -124,6 +131,13 @@ class MasterDnsVPNClient(PacketQueueMixin):
             self.config.get("MAX_PACKETS_PER_BATCH", 100)
         )
         self.packet_duplication_count = self.config.get("PACKET_DUPLICATION_COUNT", 1)
+        self.upload_compression_type: int = normalize_compression_type(
+            self.config.get("UPLOAD_COMPRESSION_TYPE", Compression_Type.OFF)
+        )
+        self.download_compression_type: int = normalize_compression_type(
+            self.config.get("DOWNLOAD_COMPRESSION_TYPE", Compression_Type.OFF)
+        )
+        self.compression_min_size: int = 100
 
         # ---------------------------------------------------------
         # ARQ and flow-control configuration
@@ -338,6 +352,39 @@ class MasterDnsVPNClient(PacketQueueMixin):
             if name.endswith(domain_suffix):
                 return domain_suffix
         return None
+
+    def _apply_session_compression_policy(self) -> None:
+        """
+        Decide effective per-session compression after MTU discovery.
+        Compression is disabled for a direction when synced MTU is too small.
+        """
+        up = self.upload_compression_type
+        down = self.download_compression_type
+
+        if (
+            self.synced_upload_mtu <= self.compression_min_size
+            and self.upload_compression_type != Compression_Type.OFF
+        ):
+            up = Compression_Type.OFF
+            self.logger.info(
+                f"<cyan>[Compression]</cyan> Upload compression disabled due to small MTU: {self.synced_upload_mtu}"
+            )
+
+        if (
+            self.synced_download_mtu <= self.compression_min_size
+            and self.download_compression_type != Compression_Type.OFF
+        ):
+            down = Compression_Type.OFF
+            self.logger.info(
+                f"<cyan>[Compression]</cyan> Download compression disabled due to small MTU: {self.synced_download_mtu}"
+            )
+
+        self.upload_compression_type = up
+        self.download_compression_type = down
+
+        self.logger.info(
+            f"<cyan>[Compression]</cyan> <green>Effective Compression - Upload: <yellow>{get_compression_name(up)}</yellow>, Download: <yellow>{get_compression_name(down)}</yellow></green>"
+        )
 
     async def _process_received_packet(
         self, response_bytes: bytes, addr=None
@@ -1250,7 +1297,13 @@ class MasterDnsVPNClient(PacketQueueMixin):
 
             init_token = os.urandom(8).hex().encode("ascii")
             flag_byte = b"\x01" if self.base_encode_responses else b"\x00"
-            payload = init_token + flag_byte
+            compression_pref_byte = bytes(
+                [
+                    ((self.upload_compression_type & 0x0F) << 4)
+                    | (self.download_compression_type & 0x0F)
+                ]
+            )
+            payload = init_token + flag_byte + compression_pref_byte
 
             encrypted_token = self.dns_parser.codec_transform(payload, encrypt=True)
 
@@ -1408,6 +1461,7 @@ class MasterDnsVPNClient(PacketQueueMixin):
                 self.logger.error("No active servers available from Balancer.")
                 return
             max_attempts = self.config.get("MAX_CONNECTION_ATTEMPTS", 10)
+            self._apply_session_compression_policy()
             if not await self._init_session(max_attempts):
                 self.logger.error("Failed to initialize session with the server.")
                 return
@@ -2229,8 +2283,13 @@ class MasterDnsVPNClient(PacketQueueMixin):
         if stream_id in self.active_streams:
             now_mono = time.monotonic()
             self.active_streams[stream_id]["last_activity_time"] = now_mono
-
         try:
+            actual_comp_type = 0
+            if data and pkt_type in self.dns_parser._PT_COMP_EXT:
+                data, actual_comp_type = compress_payload(
+                    data, self.upload_compression_type, self.compression_min_size
+                )
+
             data_encrypted = (
                 self.dns_parser.codec_transform(data, encrypt=True) if data else b""
             )
@@ -2252,6 +2311,7 @@ class MasterDnsVPNClient(PacketQueueMixin):
                     qType=DNS_Record_Type.TXT,
                     stream_id=stream_id,
                     sequence_num=sn,
+                    compression_type=actual_comp_type,
                 )
 
                 if not query_packets:
@@ -2307,6 +2367,14 @@ class MasterDnsVPNClient(PacketQueueMixin):
 
         if header_session_id != self.session_id and ptype != Packet_Type.SESSION_ACCEPT:
             return
+
+        if data and ptype in self.dns_parser._PT_COMP_EXT:
+            comp_type = int(
+                header.get("compression_type", Compression_Type.OFF)
+                or Compression_Type.OFF
+            )
+            if comp_type != Compression_Type.OFF:
+                data = decompress_payload(data, comp_type)
 
         stream_id = header.get("stream_id", 0)
         sn = header.get("sequence_num", 0)

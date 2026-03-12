@@ -134,6 +134,14 @@ class DnsPacketParser:
             Packet_Type.SOCKS5_SYN,
         }
     )
+    _PT_COMP_EXT = frozenset(
+        {
+            # Compress only data-heavy payloads to avoid CPU overhead on control/handshake packets.
+            Packet_Type.STREAM_DATA,
+            Packet_Type.STREAM_RESEND,
+            Packet_Type.PACKED_CONTROL_BLOCKS,
+        }
+    )
     _VALID_PACKET_TYPES = frozenset(
         v for k, v in Packet_Type.__dict__.items() if not k.startswith("__")
     )
@@ -191,10 +199,11 @@ class DnsPacketParser:
         elif self.encryption_method == 2:
             try:
                 from cryptography.hazmat.backends import default_backend
-                from cryptography.hazmat.primitives.ciphers import Cipher
+                from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 
                 self._Cipher = Cipher
                 self._default_backend = default_backend
+                self._chacha_algo = algorithms.ChaCha20
             except ImportError:
                 pass
 
@@ -763,6 +772,7 @@ class DnsPacketParser:
         fragment_id: int = 0,
         total_fragments: int = 0,
         total_data_length: int = 0,
+        compression_type: int = 0,
     ) -> list[bytes]:
         gen = self.generate_labels
         sq = self.simple_question_packet
@@ -779,6 +789,7 @@ class DnsPacketParser:
             fragment_id,
             total_fragments,
             total_data_length,
+            compression_type,
         )
 
         if not labels:
@@ -799,6 +810,7 @@ class DnsPacketParser:
         fragment_id: int = 0,
         total_fragments: int = 0,
         total_data_length: int = 0,
+        compression_type: int = 0,
     ) -> list:
         if encode_data and data:
             data_str = self.base_encode(data, lowerCaseOnly=True)
@@ -837,6 +849,7 @@ class DnsPacketParser:
                 fragment_id=0,
                 total_fragments=calculated_total_fragments,
                 total_data_length=raw_data_len,
+                compression_type=compression_type,
             )
 
             if data_len:
@@ -867,6 +880,7 @@ class DnsPacketParser:
                 fragment_id=frag_id,
                 total_fragments=calculated_total_fragments,
                 total_data_length=raw_data_len,
+                compression_type=compression_type,
             )
 
             if chunk_str:
@@ -1002,6 +1016,7 @@ class DnsPacketParser:
         total_fragments: int = 0,
         total_data_length: int = 0,
         encode_data: bool = False,
+        compression_type: int = 0,
     ) -> bytes:
         header_b = self.create_vpn_header(
             session_id,
@@ -1012,6 +1027,7 @@ class DnsPacketParser:
             fragment_id,
             total_fragments,
             total_data_length,
+            compression_type=compression_type,
             encrypt_data=False,
             base_encode=False,
         )
@@ -1182,6 +1198,8 @@ class DnsPacketParser:
         if Packet_Type.STREAM_DATA in self._PT_FRAG_EXT:
             # frag byte + the special-case extra 3 bytes when seq==0 and frag==0
             hb_len += 4
+        if Packet_Type.STREAM_DATA in self._PT_COMP_EXT:
+            hb_len += 1
 
         # include marker byte added before base-encoding
         bits = (hb_len + 1) * 8
@@ -1349,6 +1367,7 @@ class DnsPacketParser:
         PT_STREAM = self._PT_STREAM_EXT
         PT_SEQ = self._PT_SEQ_EXT
         PT_FRAG = self._PT_FRAG_EXT
+        PT_COMP = self._PT_COMP_EXT
 
         if ptype in PT_STREAM:
             if ln < off + 2:
@@ -1369,6 +1388,12 @@ class DnsPacketParser:
             header_data["total_fragments"] = hb[off + 1]
             header_data["total_data_length"] = (hb[off + 2] << 8) | hb[off + 3]
             off += 4
+
+        if ptype in PT_COMP:
+            if ln < off + 1:
+                return (None, 0) if return_length else None
+            header_data["compression_type"] = hb[off]
+            off += 1
 
         if return_length:
             return header_data, off - offset
@@ -1398,6 +1423,8 @@ class DnsPacketParser:
     #   [5]  1 byte  (uint8)  : Total Fragments (for first packet of a stream)
     #   [6]  2 bytes (uint16) : Total Data Length (for first packet of a stream)
     #
+    # Extended header for packet types in _PT_COMP_EXT:
+    #   [+1] 1 byte  (uint8)  : Compression Type (0=OFF, non-zero=algorithm id)
     def create_vpn_header(
         self,
         session_id: int,
@@ -1408,6 +1435,7 @@ class DnsPacketParser:
         fragment_id: int = 0,
         total_fragments: int = 0,
         total_data_length: int = 0,
+        compression_type: int = 0,
         encrypt_data: bool = True,
         base_encode: bool = True,
     ) -> str:
@@ -1421,8 +1449,9 @@ class DnsPacketParser:
             stream_id (int): Stream ID for packets in _PT_STREAM_EXT (0-65535).
             sequence_num (int): Sequence number for packets in _PT_SEQ_EXT (0-65535).
             fragment_id (int): Fragment ID for packets in _PT_FRAG_EXT (0-255).
-            total_fragments (int): Total fragments for the stream (0-255).
-            total_data_length (int): Total data length for the stream (0-65535).
+            total_fragments (int): Total fragments for packets in _PT_FRAG_EXT (0-255).
+            total_data_length (int): Total payload length for packets in _PT_FRAG_EXT (0-65535).
+            compression_type (int): Compression type byte for packet types in _PT_COMP_EXT.
             encrypt_data (bool): Whether to encrypt the header.
             base_encode (bool): Whether to base36 encode the header.
         Returns:
@@ -1448,6 +1477,9 @@ class DnsPacketParser:
                     total_data_length & 0xFF,
                 ]
             )
+
+        if packet_type in self._PT_COMP_EXT:
+            h_list.append(compression_type & 0xFF)
 
         raw_header = bytes(h_list)
 

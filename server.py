@@ -23,6 +23,15 @@ from dns_utils.DNS_ENUMS import DNS_Record_Type, Packet_Type
 from dns_utils.PacketQueueMixin import PacketQueueMixin
 from dns_utils.utils import async_recvfrom, async_sendto, get_encrypt_key, getLogger
 
+from dns_utils.compression import (
+    Compression_Type,
+    is_compression_type_available,
+    normalize_compression_type,
+    get_compression_name,
+    compress_payload,
+    decompress_payload,
+)
+
 
 class Socks5ConnectError(Exception):
     """SOCKS5 connect error carrying REP code from upstream."""
@@ -278,7 +287,11 @@ class MasterDnsVPNServer(PacketQueueMixin):
     # Session Management
     # ---------------------------------------------------------
     async def new_session(
-        self, base_flag: bool = False, client_token: bytes = b""
+        self,
+        base_flag: bool = False,
+        client_token: bytes = b"",
+        client_upload_compression_type: int = 0,
+        client_download_compression_type: int = 0,
     ) -> Optional[int]:
         try:
             if not self.free_session_ids:
@@ -287,6 +300,26 @@ class MasterDnsVPNServer(PacketQueueMixin):
 
             session_id = self.free_session_ids.popleft()
             now = time.monotonic()
+            client_upload_compression_type = client_upload_compression_type
+            client_download_compression_type = client_download_compression_type
+
+            if (
+                client_upload_compression_type != Compression_Type.OFF
+                and not is_compression_type_available(client_upload_compression_type)
+            ):
+                self.logger.warning(
+                    f"Client requested unsupported upload compression type {client_upload_compression_type}. "
+                )
+                return None
+
+            if (
+                client_download_compression_type != Compression_Type.OFF
+                and not is_compression_type_available(client_download_compression_type)
+            ):
+                self.logger.warning(
+                    f"Client requested unsupported download compression type {client_download_compression_type}. "
+                )
+                return None
 
             self.sessions[session_id] = {
                 "created_at": now,
@@ -305,6 +338,10 @@ class MasterDnsVPNServer(PacketQueueMixin):
                 "download_mtu": 512,
                 "max_packed_blocks": 1,
                 "base_encode_responses": base_flag,
+                "client_upload_compression_type": int(client_upload_compression_type),
+                "client_download_compression_type": int(
+                    client_download_compression_type
+                ),
             }
 
             server_response_type = "Bytes"
@@ -312,7 +349,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
                 server_response_type = "Base-Encoded String"
 
             self.logger.info(
-                f"<green>Created new session with ID: <cyan>{session_id}</cyan>, Response Type: <cyan>{server_response_type}</cyan></green>"
+                f"<green>Created new session with ID: <cyan>{session_id}</cyan>, Response Type: <cyan>{server_response_type}</cyan>, Compression: <cyan>Upload: <yellow>{get_compression_name(client_upload_compression_type)}</yellow>, Download: <yellow>{get_compression_name(client_download_compression_type)}</yellow></cyan></green>"
             )
             return session_id
         except Exception as e:
@@ -380,6 +417,27 @@ class MasterDnsVPNServer(PacketQueueMixin):
         except Exception:
             pass
 
+    def _extract_packet_payload(
+        self, labels: str, extracted_header: Optional[dict]
+    ) -> bytes:
+        """Extract packet payload and apply optional decompression based on header flag."""
+        payload = self.dns_parser.extract_vpn_data_from_labels(labels)
+        if not payload or not extracted_header:
+            return payload
+
+        ptype = int(extracted_header.get("packet_type", -1))
+        if ptype not in self.dns_parser._PT_COMP_EXT:
+            return payload
+
+        comp_type = int(
+            extracted_header.get("compression_type", Compression_Type.OFF)
+            or Compression_Type.OFF
+        )
+        if comp_type == Compression_Type.OFF:
+            return payload
+
+        return decompress_payload(payload, comp_type)
+
     def _spawn_background_task(self, coro):
         """Create a tracked background task so shutdown can cancel and release it."""
         if not self.loop:
@@ -411,12 +469,26 @@ class MasterDnsVPNServer(PacketQueueMixin):
         extracted_header=None,
     ) -> Optional[bytes]:
         """Handle NEW_SESSION VPN packet."""
-        client_payload = self.dns_parser.extract_vpn_data_from_labels(labels)
+        client_payload = self._extract_packet_payload(labels, extracted_header)
         if not client_payload or len(client_payload) < 17:
             return None
 
-        flag = client_payload[-1]
-        client_token = client_payload[:-1]
+        client_upload_compression_type = 0
+        client_download_compression_type = 0
+        if len(client_payload) >= 18:
+            flag = client_payload[-2]
+            compression_pref = client_payload[-1]
+            client_token = client_payload[:-2]
+            client_upload_compression_type = normalize_compression_type(
+                (compression_pref >> 4) & 0x0F
+            )
+            client_download_compression_type = normalize_compression_type(
+                compression_pref & 0x0F
+            )
+        else:
+            flag = client_payload[-1]
+            client_token = client_payload[:-1]
+
         base_encode = flag == 1
         now = time.monotonic()
 
@@ -434,8 +506,21 @@ class MasterDnsVPNServer(PacketQueueMixin):
             self.logger.debug(
                 f"<yellow>Retransmit detected from {addr}. Reusing Session {new_session_id}</yellow>"
             )
+            existing_session = self.sessions.get(new_session_id)
+            if existing_session is not None:
+                existing_session["client_upload_compression_type"] = (
+                    client_upload_compression_type
+                )
+                existing_session["client_download_compression_type"] = (
+                    client_download_compression_type
+                )
         else:
-            new_session_id = await self.new_session(base_encode, client_token)
+            new_session_id = await self.new_session(
+                base_encode,
+                client_token,
+                client_upload_compression_type,
+                client_download_compression_type,
+            )
             if new_session_id is None:
                 self.logger.debug(
                     f"<red>Failed to create new session from {addr}</red>"
@@ -590,7 +675,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             )
             return
 
-        extracted_data = self.dns_parser.extract_vpn_data_from_labels(labels)
+        extracted_data = self._extract_packet_payload(labels, extracted_header)
         if extracted_data:
             await arq.receive_data(sn, extracted_data)
 
@@ -752,7 +837,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             stream_data["socks_chunks"].clear()
         stream_data["socks_expected_frags"] = expected_chunk_count
 
-        extracted_data = self.dns_parser.extract_vpn_data_from_labels(labels)
+        extracted_data = self._extract_packet_payload(labels, extracted_header)
         if extracted_data and 0 <= frag_id < expected_chunk_count:
             stream_data["socks_chunks"][frag_id] = extracted_data
 
@@ -942,7 +1027,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
         if not session:
             return
 
-        extracted_data = self.dns_parser.extract_vpn_data_from_labels(labels)
+        extracted_data = self._extract_packet_payload(labels, extracted_header)
         if not extracted_data:
             return
 
@@ -1010,10 +1095,14 @@ class MasterDnsVPNServer(PacketQueueMixin):
         data: bytes,
         labels: str,
         request_domain: str,
+        extracted_header: Optional[dict] = None,
     ) -> Optional[bytes]:
         if packet_type == Packet_Type.SESSION_INIT:
             return await self._handle_session_init(
-                request_domain=request_domain, data=data, labels=labels
+                request_domain=request_domain,
+                data=data,
+                labels=labels,
+                extracted_header=extracted_header,
             )
         if packet_type == Packet_Type.MTU_UP_REQ:
             return await self._handle_mtu_up(
@@ -1028,6 +1117,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
                 session_id=session_id,
                 labels=labels,
                 data=data,
+                extracted_header=extracted_header,
             )
         if packet_type == Packet_Type.SET_MTU_REQ:
             return await self._handle_set_mtu(
@@ -1035,6 +1125,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
                 session_id=session_id,
                 labels=labels,
                 data=data,
+                extracted_header=extracted_header,
             )
         return None
 
@@ -1075,6 +1166,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             data=data,
             labels=labels,
             request_domain=request_domain,
+            extracted_header=extracted_header,
         )
         if pre_session_response is not None:
             return pre_session_response
@@ -1218,6 +1310,15 @@ class MasterDnsVPNServer(PacketQueueMixin):
         if res_ptype == Packet_Type.PONG:
             res_data = b"PO:" + os.urandom(4)
 
+        response_compression_type = Compression_Type.OFF
+        if res_data and res_ptype in self.dns_parser._PT_COMP_EXT:
+            preferred_download_comp = session.get(
+                "client_download_compression_type", Compression_Type.OFF
+            )
+            res_data, response_compression_type = compress_payload(
+                res_data, preferred_download_comp, 100
+            )
+
         base_encode = session.get("base_encode_responses", False)
 
         return self.dns_parser.generate_vpn_response_packet(
@@ -1229,6 +1330,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             stream_id=res_stream_id,
             sequence_num=res_sn,
             encode_data=base_encode,
+            compression_type=response_compression_type,
         )
 
     async def _process_socks5_target(self, session_id, stream_id, target_payload):
@@ -1532,7 +1634,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             )
             return None
 
-        extracted_data = self.dns_parser.extract_vpn_data_from_labels(labels)
+        extracted_data = self._extract_packet_payload(labels, extracted_header)
 
         if not extracted_data or len(extracted_data) < 8:
             self.logger.warning(f"Invalid or missing SET_MTU_REQ data from {addr}")
@@ -1586,7 +1688,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
     ) -> Optional[bytes]:
         """Handle MTU_DOWN_REQ (download MTU test) VPN packet."""
 
-        download_size_bytes = self.dns_parser.extract_vpn_data_from_labels(labels)
+        download_size_bytes = self._extract_packet_payload(labels, extracted_header)
 
         if not download_size_bytes or len(download_size_bytes) < 5:
             self.logger.warning(
