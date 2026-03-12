@@ -300,26 +300,30 @@ class MasterDnsVPNServer(PacketQueueMixin):
 
             session_id = self.free_session_ids.popleft()
             now = time.monotonic()
-            client_upload_compression_type = client_upload_compression_type
-            client_download_compression_type = client_download_compression_type
+            client_upload_compression_type = normalize_compression_type(
+                client_upload_compression_type
+            )
+            client_download_compression_type = normalize_compression_type(
+                client_download_compression_type
+            )
 
             if (
                 client_upload_compression_type != Compression_Type.OFF
                 and not is_compression_type_available(client_upload_compression_type)
             ):
                 self.logger.warning(
-                    f"Client requested unsupported upload compression type {client_upload_compression_type}. "
+                    f"Client requested unsupported upload compression type {client_upload_compression_type}. Falling back to OFF."
                 )
-                return None
+                client_upload_compression_type = Compression_Type.OFF
 
             if (
                 client_download_compression_type != Compression_Type.OFF
                 and not is_compression_type_available(client_download_compression_type)
             ):
                 self.logger.warning(
-                    f"Client requested unsupported download compression type {client_download_compression_type}. "
+                    f"Client requested unsupported download compression type {client_download_compression_type}. Falling back to OFF."
                 )
-                return None
+                client_download_compression_type = Compression_Type.OFF
 
             self.sessions[session_id] = {
                 "created_at": now,
@@ -435,6 +439,9 @@ class MasterDnsVPNServer(PacketQueueMixin):
         )
         if comp_type == Compression_Type.OFF:
             return payload
+
+        if not is_compression_type_available(comp_type):
+            return b""
 
         return decompress_payload(payload, comp_type)
 

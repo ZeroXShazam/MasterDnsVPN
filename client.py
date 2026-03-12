@@ -2285,7 +2285,11 @@ class MasterDnsVPNClient(PacketQueueMixin):
             self.active_streams[stream_id]["last_activity_time"] = now_mono
         try:
             actual_comp_type = 0
-            if data and pkt_type in self.dns_parser._PT_COMP_EXT:
+            if (
+                data
+                and self.upload_compression_type != Compression_Type.OFF
+                and pkt_type in self.dns_parser._PT_COMP_EXT
+            ):
                 data, actual_comp_type = compress_payload(
                     data, self.upload_compression_type, self.compression_min_size
                 )
