@@ -812,7 +812,7 @@ class MasterDnsVPNClient(PacketQueueMixin):
         )
 
     async def _process_received_packet(
-        self, response_bytes: bytes, addr=None
+        self, response_bytes: bytes, addr: Optional[tuple] = None
     ) -> Tuple[Optional[dict], bytes]:
         """Parse DNS response, validate source/domain once, then extract VPN payload."""
         if not response_bytes:
@@ -1993,7 +1993,7 @@ class MasterDnsVPNClient(PacketQueueMixin):
                                 return False
 
                             received_token = parts[0].decode("ascii", errors="ignore")
-                            received_sid = parts[1].decode("ascii", errors="ignore")
+                            raw_sid = bytes(parts[1] or b"")
                             compression_pref = 0
                             if len(parts) >= 3:
                                 raw_comp = bytes(parts[2] or b"")
@@ -2047,8 +2047,20 @@ class MasterDnsVPNClient(PacketQueueMixin):
                                 self.logger.warning(
                                     f"<yellow>Server requested download compression change. New Download Compression: <cyan>{get_compression_name(self.download_compression_type)}</cyan></yellow>"
                                 )
-                            sid_txt = received_sid.strip().strip("\x00")
-                            self.session_id = int(sid_txt)
+                            sid_txt = (
+                                raw_sid.decode("ascii", errors="ignore")
+                                .strip()
+                                .strip("\x00")
+                            )
+                            if sid_txt.isdigit():
+                                self.session_id = int(sid_txt)
+                            elif len(raw_sid) == 1:
+                                # Backward-compatible fallback for binary SID payloads.
+                                self.session_id = raw_sid[0]
+                            else:
+                                raise ValueError(
+                                    f"Invalid session id payload: {raw_sid!r}"
+                                )
                             self.logger.success(
                                 f"<green>Validated Session ID: <cyan>{self.session_id}</cyan>, Upload Compression: <cyan>{get_compression_name(self.upload_compression_type)}</cyan>, Download Compression: <cyan>{get_compression_name(self.download_compression_type)}</cyan></green>"
                             )

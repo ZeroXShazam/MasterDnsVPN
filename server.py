@@ -55,6 +55,14 @@ except Exception:
 class MasterDnsVPNServer(PacketQueueMixin):
     """MasterDnsVPN Server class to handle DNS requests over UDP."""
 
+    def _prompt_before_exit(self) -> None:
+        """Best-effort pause for interactive sessions; never fail in headless runs."""
+        try:
+            if sys.stdin and sys.stdin.isatty():
+                input("Press Enter to exit...")
+        except Exception:
+            pass
+
     def __init__(self) -> None:
         """Initialize the MasterDnsVPNServer with configuration and logger."""
         # ---------------------------------------------------------
@@ -78,7 +86,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             self.logger.error(
                 "Please place it in the same directory as the executable and restart."
             )
-            input("Press Enter to exit...")
+            self._prompt_before_exit()
             sys.exit(1)
 
         self.logger = getLogger(
@@ -103,7 +111,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
             self.logger.error(
                 f"Invalid PROTOCOL_TYPE '{self.protocol_type}' in config. Must be 'SOCKS5' or 'TCP'."
             )
-            input("Press Enter to exit...")
+            self._prompt_before_exit()
             sys.exit(1)
 
         # ---------------------------------------------------------
@@ -2402,7 +2410,7 @@ class MasterDnsVPNServer(PacketQueueMixin):
         self.logger.info("<magenta>MasterDnsVPN Server stopped.</magenta>")
         os._exit(0)
 
-    def _signal_handler(self, signum: int, frame: Any = None) -> None:
+    def _signal_handler(self, signum: int, frame: Optional[Any] = None) -> None:
         """
         Handle termination signals for graceful shutdown.
         """
