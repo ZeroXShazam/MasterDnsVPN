@@ -124,6 +124,9 @@ class MasterDnsVPNClient(PacketQueueMixin):
         self.min_download_mtu: int = self.config.get("MIN_DOWNLOAD_MTU", 0)
         self.mtu_test_retries: int = self.config.get("MTU_TEST_RETRIES", 2)
         self.mtu_test_timeout: float = float(self.config.get("MTU_TEST_TIMEOUT", 1.0))
+        self.mtu_test_parallelism: int = max(
+            1, int(self.config.get("MTU_TEST_PARALLELISM", 10))
+        )
         self.save_mtu_servers_to_file: bool = bool(
             self.config.get("SAVE_MTU_SERVERS_TO_FILE", False)
         )
@@ -319,7 +322,7 @@ class MasterDnsVPNClient(PacketQueueMixin):
         # Config version markers
         # ---------------------------------------------------------
         self.config_version = self.config.get("CONFIG_VERSION", 0.1)
-        self.min_config_version = 2.0
+        self.min_config_version = 3.0
 
         self.logger.debug("<magenta>[INIT]</magenta> MasterDnsVPNClient initialized.")
 
@@ -423,16 +426,12 @@ class MasterDnsVPNClient(PacketQueueMixin):
         if is_retry or self.background_mtu_recheck_mode:
             return
 
-        if level == "success":
-            self.logger.success(message)
-        elif level == "debug":
-            self.logger.debug(message)
-        elif level == "warning":
-            self.logger.warning(message)
-        elif level == "error":
+        # MTU probe logs are intentionally noisy; keep them debug-only.
+        # Final per-connection outcomes are logged in test_mtu_sizes().
+        if level == "error":
             self.logger.error(message)
         else:
-            self.logger.info(message)
+            self.logger.debug(message)
 
     def _append_mtu_usage_separator_once(self) -> None:
         if self.mtu_usage_separator_written:
@@ -1373,78 +1372,117 @@ class MasterDnsVPNClient(PacketQueueMixin):
             pass
 
         self.logger.info("=" * 80)
-        self.logger.info("<y>Testing MTU sizes for all resolver-domain pairs...</y>")
+        self.logger.info(
+            f"<y>Testing MTU sizes for all resolver-domain pairs (parallel={self.mtu_test_parallelism})...</y>"
+        )
 
-        server_id = 0
         total_conns = len(self.connections_map)
         mtu_output_path = self._prepare_mtu_success_output_file()
-
         for connection in self.connections_map:
-            if self.should_stop.is_set():
-                break
-
             if not connection:
                 continue
-
-            server_id += 1
-            domain = connection.get("domain")
-            resolver = connection.get("resolver")
-            dns_port = 53
-
             connection["is_valid"] = False
             connection["upload_mtu_bytes"] = 0
             connection["upload_mtu_chars"] = 0
             connection["download_mtu_bytes"] = 0
             connection["packet_loss"] = 100
 
-            valid_count = sum(1 for c in self.connections_map if c.get("is_valid"))
-            errors_count = server_id - valid_count
-            self.logger.info(
-                f"<blue>Testing connection <yellow>{domain}</yellow> via <cyan>{resolver}</cyan> (<green>V: {valid_count}</green>, <red>E: {errors_count}</red>, <yellow>{server_id} / {total_conns}</yellow>)...</blue>"
-            )
-            # Step 1: Upload MTU
-            up_valid, up_mtu_bytes, up_mtu_char = await self.test_upload_mtu_size(
-                domain, resolver, dns_port, self.max_upload_mtu
-            )
+        sem = asyncio.Semaphore(max(1, self.mtu_test_parallelism))
+        counters = {
+            "completed": 0,
+            "valid": 0,
+            "reject_upload": 0,
+            "reject_download": 0,
+        }
+        counters_lock = asyncio.Lock()
 
-            valid_count = sum(1 for c in self.connections_map if c.get("is_valid"))
-            errors_count = server_id - valid_count
-            if not up_valid or (
-                self.min_upload_mtu > 0 and up_mtu_bytes < self.min_upload_mtu
-            ):
-                self.logger.warning(
-                    f"<red>❌ Upload test failed: Upload MTU <cyan>{up_mtu_bytes}</cyan> bytes via <cyan>{resolver}</cyan> for <cyan>{domain}</cyan> - (<green>V: {valid_count}</green>, <red>E: {errors_count}</red>, <yellow>{server_id} / {total_conns}</yellow>)</red>"
+        async def _test_one_connection(server_id: int, connection: dict) -> None:
+            if not connection or self.should_stop.is_set():
+                return
+
+            async with sem:
+                if self.should_stop.is_set():
+                    return
+
+                domain = connection.get("domain")
+                resolver = connection.get("resolver")
+                dns_port = 53
+
+                self.logger.debug(
+                    f"<blue>Testing connection <yellow>{domain}</yellow> via <cyan>{resolver}</cyan> (<yellow>{server_id} / {total_conns}</yellow>)...</blue>"
                 )
-                continue
 
-            # Step 2: Download MTU
-            down_valid, down_mtu_bytes = await self.test_download_mtu_size(
-                domain, resolver, dns_port, self.max_download_mtu, up_mtu_bytes
-            )
-
-            if not down_valid or (
-                self.min_download_mtu > 0 and down_mtu_bytes < self.min_download_mtu
-            ):
-                self.logger.warning(
-                    f"<red>❌ Download test failed: Download MTU <cyan>{down_mtu_bytes}</cyan> bytes via <cyan>{resolver}</cyan> for <cyan>{domain}</cyan> - (<green>V: {valid_count}</green>, <red>E: {errors_count}</red>, <yellow>{server_id} / {total_conns}</yellow>)</red>"
+                up_valid, up_mtu_bytes, up_mtu_char = await self.test_upload_mtu_size(
+                    domain, resolver, dns_port, self.max_upload_mtu
                 )
-                continue
 
-            # Marking as Valid
-            connection["is_valid"] = True
-            connection["upload_mtu_bytes"] = up_mtu_bytes
-            connection["upload_mtu_chars"] = up_mtu_char
-            connection["download_mtu_bytes"] = down_mtu_bytes
-            connection["packet_loss"] = 0
+                if not up_valid or (
+                    self.min_upload_mtu > 0 and up_mtu_bytes < self.min_upload_mtu
+                ):
+                    async with counters_lock:
+                        counters["completed"] += 1
+                        counters["reject_upload"] += 1
+                        completed = counters["completed"]
+                        valid_now = counters["valid"]
+                        rejected_now = (
+                            counters["reject_upload"] + counters["reject_download"]
+                        )
+                    self.logger.warning(
+                        f"<red>❌ Rejected ({completed}/{total_conns}): <cyan>{domain}</cyan> via <cyan>{resolver}</cyan> | reason=<yellow>UPLOAD_MTU</yellow> | value=<cyan>{up_mtu_bytes}</cyan> | totals: valid=<green>{valid_now}</green>, rejected=<red>{rejected_now}</red></red>"
+                    )
+                    return
 
-            valid_count = sum(1 for c in self.connections_map if c.get("is_valid"))
-            errors_count = server_id - valid_count
-            self.logger.success(
-                f"<green>✅ Valid: {domain} via <green>{resolver}</green> | "
-                f"Upload MTU: <cyan>{up_mtu_bytes}</cyan> | Download MTU: <cyan>{down_mtu_bytes}</cyan> - (<green>V: {valid_count}</green>, <red>E: {errors_count}</red>, <yellow>{server_id} / {total_conns}</yellow>)</green>"
-            )
+                down_valid, down_mtu_bytes = await self.test_download_mtu_size(
+                    domain, resolver, dns_port, self.max_download_mtu, up_mtu_bytes
+                )
 
-            self._append_mtu_success_line(mtu_output_path, connection)
+                if not down_valid or (
+                    self.min_download_mtu > 0 and down_mtu_bytes < self.min_download_mtu
+                ):
+                    async with counters_lock:
+                        counters["completed"] += 1
+                        counters["reject_download"] += 1
+                        completed = counters["completed"]
+                        valid_now = counters["valid"]
+                        rejected_now = (
+                            counters["reject_upload"] + counters["reject_download"]
+                        )
+                    self.logger.warning(
+                        f"<red>❌ Rejected ({completed}/{total_conns}): <cyan>{domain}</cyan> via <cyan>{resolver}</cyan> | reason=<yellow>DOWNLOAD_MTU</yellow> | value=<cyan>{down_mtu_bytes}</cyan> | totals: valid=<green>{valid_now}</green>, rejected=<red>{rejected_now}</red></red>"
+                    )
+                    return
+
+                connection["is_valid"] = True
+                connection["upload_mtu_bytes"] = up_mtu_bytes
+                connection["upload_mtu_chars"] = up_mtu_char
+                connection["download_mtu_bytes"] = down_mtu_bytes
+                connection["packet_loss"] = 0
+
+                async with counters_lock:
+                    counters["completed"] += 1
+                    counters["valid"] += 1
+                    completed = counters["completed"]
+                    valid_now = counters["valid"]
+                    rejected_now = (
+                        counters["reject_upload"] + counters["reject_download"]
+                    )
+                self.logger.info(
+                    f"<green>✅ Accepted ({completed}/{total_conns}): <cyan>{domain}</cyan> via <cyan>{resolver}</cyan> | upload=<cyan>{up_mtu_bytes}</cyan> | download=<cyan>{down_mtu_bytes}</cyan> | totals: valid=<green>{valid_now}</green>, rejected=<red>{rejected_now}</red></green>"
+                )
+
+                self._append_mtu_success_line(mtu_output_path, connection)
+
+        tasks = [
+            asyncio.create_task(_test_one_connection(idx, conn))
+            for idx, conn in enumerate(self.connections_map, start=1)
+            if conn
+        ]
+        if tasks:
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            for r in results:
+                if isinstance(r, Exception):
+                    self.logger.debug(f"MTU parallel test worker error: {r}")
+                    counters["completed"] += 1
 
         valid_conns = [c for c in self.connections_map if c.get("is_valid")]
         if not valid_conns:
@@ -1452,6 +1490,14 @@ class MasterDnsVPNClient(PacketQueueMixin):
                 "<red>No valid connections found after MTU testing!</red>"
             )
             return False
+
+        self.logger.info(
+            f"<cyan>MTU scan summary:</cyan> valid=<green>{counters['valid']}</green>, "
+            f"rejected_upload=<yellow>{counters['reject_upload']}</yellow>, "
+            f"rejected_download=<yellow>{counters['reject_download']}</yellow>, "
+            f"other=<yellow>{max(0, total_conns - counters['completed'])}</yellow>, "
+            f"total=<cyan>{total_conns}</cyan>"
+        )
 
         self.initial_mtu_scan_finished_at = time.monotonic()
         self.next_inactive_recheck_at = (

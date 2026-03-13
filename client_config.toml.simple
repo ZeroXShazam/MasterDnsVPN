@@ -94,7 +94,11 @@ MAX_DOWNLOAD_MTU = 200
 
 # MTU test aggressiveness.
 MTU_TEST_RETRIES = 2
-MTU_TEST_TIMEOUT = 1.0
+MTU_TEST_TIMEOUT = 2.0
+
+# Number of resolver-domain pairs tested in parallel during initial MTU scan.
+# Higher values speed up startup but increase temporary CPU/network usage.
+MTU_TEST_PARALLELISM = 10
 
 # If true, successful MTU-tested resolvers are saved to file.
 SAVE_MTU_SERVERS_TO_FILE = false
@@ -193,5 +197,5 @@ LOG_LEVEL = "INFO"
 # ------------------------------------------------------------------------------
 # 7) Version Marker
 # ------------------------------------------------------------------------------
-CONFIG_VERSION = 2.0
+CONFIG_VERSION = 3.0
 
