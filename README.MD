@@ -1,6 +1,6 @@
-﻿# MasterDnsVPN Project ðŸš€
+﻿# 🚀 MasterDnsVPN Project
 
-## [Ù†Ø³Ø®Ù‡ ÙØ§Ø±Ø³ÛŒ](https://github.com/masterking32/MasterDnsVPN/blob/main/README_FA.MD) | [English Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README.MD) | [Spanish Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README_ES.MD)
+## [نسخه فارسی](https://github.com/masterking32/MasterDnsVPN/blob/main/README_FA.MD) | [English Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README.MD) | [Spanish Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README_ES.MD)
 
 The **MasterDnsVPN** project is a robust, low-overhead, and advanced solution for bypassing internet censorship and filtering by hiding and encapsulating TCP traffic within DNS queries.
 
@@ -10,17 +10,17 @@ The primary goal of **MasterDnsVPN** is to provide a secure, reliable, and flexi
 
 ---
 
-âŒ Disclaimer: This project is intended for educational and research purposes only. Its use may disrupt network structures, and using it to bypass country laws is prohibited. We take no responsibility for any such actions.
+❌ Disclaimer: This project is intended for educational and research purposes only. Its use may disrupt network structures, and using it to bypass country laws is prohibited. We take no responsibility for any such actions.
 
 ---
 
-# Announcement Channel ðŸ“¢
+# 📢 Announcement Channel
 
 ### For the latest news, updates, and changes regarding this project, please follow our Telegram channel: [Telegram Channel](https://t.me/masterdnsvpn)
 
 ---
 
-You can support this project by starring the repository on GitHub, which helps increase its visibility and reach. If you find this project useful or interesting, please consider giving it a star! â­
+⭐ You can support this project by starring the repository on GitHub, which helps increase its visibility and reach. If you find this project useful or interesting, please consider giving it a star! ⭐
 
 If you are interested in providing financial support, you can do so through the following channels:
 
@@ -33,44 +33,44 @@ TRC20 chain: `TLApdY8APWkFHHoxebxGY8JhMeChiETqFH`
 
 ---
 
-## Key Features & Advantages âœ¨
+## ✨ Key Features & Advantages
 
-- ðŸ›¡ï¸ **Bypassing Strict Censorship:**  Specifically designed to increase the probability of penetrating firewalls and restrictive network policies that block standard VPN protocols.
+- 🛡️ **Bypassing Strict Censorship:**  Specifically designed to increase the probability of penetrating firewalls and restrictive network policies that block standard VPN protocols.
 
-- âš¡ **Load Balancing & Resolver Diversity:** Supports multiple DNS Resolvers with advanced packet load-balancing strategies (including Random, Round-Robin, and Least Loss).
+- ⚡ **Load Balancing & Resolver Diversity:** Supports multiple DNS Resolvers with advanced packet load-balancing strategies (including Random, Round-Robin, and Least Loss).
 
-- ðŸ“¡ **Packet Duplication (Multipath):** Capable of sending the same packet simultaneously through multiple routes (different resolvers and domains). Whichever packet arrives first is processed; if a packet drops on one route, its duplicate arrives safely via another. This technique increases bandwidth usage but drastically improves reliability and stability in highly disrupted networks (adjustable and can be disabled).
+- 📡 **Packet Duplication (Multipath):** Capable of sending the same packet simultaneously through multiple routes (different resolvers and domains). Whichever packet arrives first is processed; if a packet drops on one route, its duplicate arrives safely via another. This technique increases bandwidth usage but drastically improves reliability and stability in highly disrupted networks (adjustable and can be disabled).
 
-- ðŸ”„ **Custom ARQ Protocol & Overhead Optimization:**  Implements a custom ARQ (Automatic Repeat reQuest) layer over UDP/DNS for packet retransmission and sequencing instead of relying on QUIC. This eliminates the heavy overhead of QUIC, reduces the required MTU, and ensures compatibility with resolvers that lack EDNS support or have low MTU limits. Packet structures are minimized to reduce application-side overhead.
+- 🔄 **Custom ARQ Protocol & Overhead Optimization:**  Implements a custom ARQ (Automatic Repeat reQuest) layer over UDP/DNS for packet retransmission and sequencing instead of relying on QUIC. This eliminates the heavy overhead of QUIC, reduces the required MTU, and ensures compatibility with resolvers that lack EDNS support or have low MTU limits. Packet structures are minimized to reduce application-side overhead.
 
-- ðŸ” **Strong Security & Flexible Encryption:** Supports various robust encryption methods to ensure user privacy, including: `XOR`, `ChaCha20`, `AES-128-GCM`, `AES-192-GCM`, and `AES-256-GCM`.
+- 🔐 **Strong Security & Flexible Encryption:** Supports various robust encryption methods to ensure user privacy, including: `XOR`, `ChaCha20`, `AES-128-GCM`, `AES-192-GCM`, and `AES-256-GCM`.
 
-- ðŸ§° **Auto-Scanning & MTU Probing:** Upon execution, the client automatically scans all configured resolvers, tests their quality, displays the results, and calculates the optimal MTU for your network paths.
+- 🧰 **Auto-Scanning & MTU Probing:** Upon execution, the client automatically scans all configured resolvers, tests their quality, displays the results, and calculates the optimal MTU for your network paths.
 
-- ðŸŒ **TCP Multiplexing:** Multiplexes multiple local TCP connections onto a single DNS session for optimal resource management.
+- 🌐 **TCP Multiplexing:** Multiplexes multiple local TCP connections onto a single DNS session for optimal resource management.
 
-- ðŸ—œï¸ **Small Packet Compression/Packing:** If configured, the system can merge multiple small packets into a single payload up to the MTU limit. This drastically reduces the number of outbound DNS requests and frees up space for actual payload data.
+- 🗜️ **Small Packet Compression/Packing:** If configured, the system can merge multiple small packets into a single payload up to the MTU limit. This drastically reduces the number of outbound DNS requests and frees up space for actual payload data.
 
-- ðŸ§¦ **Dedicated SOCKS5 Optimization:** In recent versions, specific optimizations have been applied for SOCKS5. The system automatically handles SOCKS5 forwarding, eliminating the need to install third-party proxy tools like X-UI or Dante. Furthermore, setting the protocol to SOCKS5 strips away redundant SOCKS handshake packets over the tunnel, significantly reducing traffic.
+- 🧦 **Dedicated SOCKS5 Optimization:** In recent versions, specific optimizations have been applied for SOCKS5. The system automatically handles SOCKS5 forwarding, eliminating the need to install third-party proxy tools like X-UI or Dante. Furthermore, setting the protocol to SOCKS5 strips away redundant SOCKS handshake packets over the tunnel, significantly reducing traffic.
 
-- ðŸš€ **Forwarding Various TCP Protocols:** Besides the highly optimized SOCKS5 integration, you can also forward other TCP-based services like `VLESS`, `ShadowSocks`, `VMESS`, etc.
+- 🚀 **Forwarding Various TCP Protocols:** Besides the highly optimized SOCKS5 integration, you can also forward other TCP-based services like `VLESS`, `ShadowSocks`, `VMESS`, etc.
 
 ---
 
-# Setup Guide ðŸ§‘â€ðŸ’»
+# 🧑‍💻 Setup Guide
 
-## Section 1: Network Prerequisites (DNS Config) ðŸ› ï¸
+## 🛠️ Section 1: Network Prerequisites (DNS Config)
 
 For your server to directly receive and process DNS queries, you must delegate a subdomain to your dedicated server. Log in to your domain's DNS management panel (e.g., Cloudflare, ArvanCloud) and create the following two records:
 
-### Step 1.1: Create an A Record (Server IP) ðŸ…°ï¸
+### 🅰️ Step 1.1: Create an A Record (Server IP)
 First, create an `A` record pointing a subdomain to your server's Public IPv4 address.
 - **Type:** `A`
 - **Name:** A short, arbitrary name (e.g., `ns`)
 - **IPv4 address:** Your server's IP address (e.g., `1.2.3.4`)
   > **Result:** `ns.example.com -> 1.2.3.4`
 
-### Step 1.2: Create an NS Record (Tunnel Subdomain) ðŸ·ï¸
+### 🏷️ Step 1.2: Create an NS Record (Tunnel Subdomain)
 Next, create an `NS` (Name Server) record. This tells the internet that the server you defined in the previous step is responsible for handling queries for this specific subdomain.
 - **Type:** `NS`
 - **Name:** The main tunnel subdomain (e.g., `v`)
@@ -79,19 +79,19 @@ Next, create an `NS` (Name Server) record. This tells the internet that the serv
 
 ---
 
-## Section 1.3: Crucial Warning (Cloudflare Users) âš ï¸
+## ⚠️ Section 1.3: Crucial Warning (Cloudflare Users)
 If you are using Cloudflare, the Proxy status for the `A` record **MUST** be set to **DNS only (Gray Cloud â˜ï¸)**. If the proxy is enabled (Orange Cloud), Cloudflare will block UDP port 53 traffic, and your tunnel **will not work at all**!
 
-## Section 1.4: Golden Tip for Speed (MTU) ðŸ’¡
+## 💡 Section 1.4: Golden Tip for Speed (MTU)
 In the DNS protocol, the length of your domain name consumes part of the very limited payload capacity of each packet. Using **shorter** domain and subdomain names (e.g., `v.ex.com` instead of `tunnel.my-long-domain.com`) leaves more free space for the actual user payload. This directly results in higher bandwidth, faster speeds, and fewer connection drops.
 
 ---
 
-## Section 2: Installation & Execution (Client & Server) ðŸš€
+## 🚀 Section 2: Installation & Execution (Client & Server)
 
 You can install and run this project using two methods: the fast, pre-compiled automated method (Recommended), or directly from the Python source code.
 
-### Step 2.1: Quick Linux Server Setup ðŸ§
+### 🐧 Step 2.1: Quick Linux Server Setup
 
 If you want to set up the server on a Linux machine, the easiest way is using the automated installation script. Simply run the following command in your server's terminal:
 
@@ -101,46 +101,46 @@ bash <(curl -Ls https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main
 
 This command downloads a script from GitHub and automatically handles the entire installation and configuration process. Once finished, the server will start, and an **Encryption Key** will be displayed in the terminal logs. Make sure to copy this key (it is also saved in `encrypt_key.txt` next to the server executable for convenience), as you will need it to connect the client.
 
-> âš ï¸ **Important Note 1:** Before running this script, you must own a domain and have properly configured your DNS records (Section 1).
+> ⚠️ **Important Note 1:** Before running this script, you must own a domain and have properly configured your DNS records (Section 1).
 > 
-> âš ï¸ **Important Note 2:** This script only sets up the Linux server and does not include the client. To run the client on your local machine, use "Step 2.2" below.
+> ⚠️ **Important Note 2:** This script only sets up the Linux server and does not include the client. To run the client on your local machine, use "Step 2.2" below.
 > 
-> âš ï¸ **Important Note 3:** You can also use this command to update your server. When a new version is released, running this script again will automatically update your server.
+> ⚠️ **Important Note 3:** You can also use this command to update your server. When a new version is released, running this script again will automatically update your server.
 
 ---
 
-### Step 2.2: Using Pre-compiled Client Binaries (Recommended âœ…)
+### Step 2.2: Using Pre-compiled Client Binaries (✅ Recommended)
 
 For your convenience, the client executables (and servers for other OSs) are pre-compiled. Simply download the correct version for your operating system and extract the ZIP file.
 
-> ðŸ’¡ **Note:** Every Client ZIP file contains the client executable, `client_config.toml`, and `client_resolvers.txt` (resolver list file). 
+> 💡 **Note:** Every Client ZIP file contains the client executable, `client_config.toml`, and `client_resolvers.txt` (resolver list file). 
 
-#### MasterDnsVPN Client Download Links ðŸ“¥
+#### 📤 MasterDnsVPN Client Download Links
 
 | Operating System (OS) | Architecture | Suitable For... | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| Windows ðŸªŸ | `AMD64` (64-bit) | Windows 10 & 11 | [Download Windows Version â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Windows_AMD64.zip) |
-| macOS ðŸŽ | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac (Apple Silicon) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_MacOS_ARM64.zip) |
-| Linux ðŸ§ | `AMD64` (64-bit) | Newer distros (Ubuntu 22.04+, Debian 12+) | [Download Linux (New) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_AMD64.zip) |
-| Linux (Legacy) ðŸ§ | `AMD64` (64-bit) | Older distros (Ubuntu 20.04, Debian 11) | [Download Linux (Legacy) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux-Legacy_AMD64.zip) |
-| Linux (ARM) ðŸ§ | `ARM64` | ARM servers, Raspberry Pi, etc. | [Download Linux (ARM) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_ARM64.zip) |
+| Windows 🪟 | `AMD64` (64-bit) | Windows 10 & 11 | [Download Windows Version â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Windows_AMD64.zip) |
+| macOS 🍎 | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac (Apple Silicon) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_MacOS_ARM64.zip) |
+| Linux 🐧 | `AMD64` (64-bit) | Newer distros (Ubuntu 22.04+, Debian 12+) | [Download Linux (New) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_AMD64.zip) |
+| Linux (Legacy) 🐧 | `AMD64` (64-bit) | Older distros (Ubuntu 20.04, Debian 11) | [Download Linux (Legacy) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux-Legacy_AMD64.zip) |
+| Linux (ARM) 🐧 | `ARM64` | ARM servers, Raspberry Pi, etc. | [Download Linux (ARM) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_ARM64.zip) |
 
 *(Windows and Mac users can extract the file and immediately proceed to Section 3 for configuration).*
 
-#### MasterDnsVPN Server Download Links ðŸ“¤
+#### 📤 MasterDnsVPN Server Download Links 
 *(Only if you did not use the quick install script)*
 
 | Operating System (OS) | Architecture | Suitable For... | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| Windows ðŸªŸ | `AMD64` (64-bit) | Windows Server, Windows 10 & 11 | [Download Windows Server â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Windows_AMD64.zip) |
-| Linux ðŸ§ | `AMD64` (64-bit) | Ubuntu 22.04+, Debian 12+ servers | [Download Linux Server (New) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_AMD64.zip) |
-| Linux (Legacy) ðŸ§ | `AMD64` (64-bit) | Older servers (Ubuntu 20.04, Debian 11) | [Download Linux Server (Legacy) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux-Legacy_AMD64.zip) |
-| Linux (ARM) ðŸ§ | `ARM64` | ARM cloud servers | [Download Linux Server (ARM) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_ARM64.zip) |
-| macOS ðŸŽ | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac Server (Apple Silicon) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_MacOS_ARM64.zip) |
+| Windows 🪟 | `AMD64` (64-bit) | Windows Server, Windows 10 & 11 | [Download Windows Server â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Windows_AMD64.zip) |
+| Linux 🐧 | `AMD64` (64-bit) | Ubuntu 22.04+, Debian 12+ servers | [Download Linux Server (New) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_AMD64.zip) |
+| Linux (Legacy) 🐧 | `AMD64` (64-bit) | Older servers (Ubuntu 20.04, Debian 11) | [Download Linux Server (Legacy) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux-Legacy_AMD64.zip) |
+| Linux (ARM) 🐧 | `ARM64` | ARM cloud servers | [Download Linux Server (ARM) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_ARM64.zip) |
+| macOS 🍎 | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac Server (Apple Silicon) â¬‡ï¸](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_MacOS_ARM64.zip) |
 
 ---
 
-### Step 2.2.1: Extraction & Prep on Linux ðŸ—‚ï¸
+### Step 2.2.1: Extraction & Prep on Linux 🐧
 
 On Linux, after downloading the ZIP file, ensure you have the required extraction and text editing tools:
 
@@ -181,9 +181,9 @@ After saving the configuration, run the program:
 
 ---
 
-### Step 2.3: Python Source Code Setup (For Developers ðŸ§‘â€ðŸ’»)
+### Step 2.3: Python Source Code Setup (For Developers 🧑‍💻)
 
-> âš ï¸ **Notice:** If you are a standard user, you do not need this section. Please use Step 2.2 and proceed directly to "Section 3: Configuration". This method is strictly for developers who wish to modify or execute the raw Python code.
+> ⚠️ **Notice:** If you are a standard user, you do not need this section. Please use Step 2.2 and proceed directly to "Section 3: Configuration". This method is strictly for developers who wish to modify or execute the raw Python code.
 
 To run the source code, Python must be installed. Run the following commands in your terminal:
 
@@ -205,9 +205,9 @@ python client.py
 
 ---
 
-# Section 3: Configuration Structure (Config) ðŸ› ï¸
+# Section 3: Configuration Structure (Config) ⚙️
 
-## Section 3.1: Quick Client Setup & Run ðŸš€
+## Section 3.1: Quick Client Setup & Run 🚀
 
 If you launched your server using the Quick Install script (Step 2.1), you only need to edit `client_config.toml` on your client machine. The three main parameters you MUST configure are:
 
@@ -215,21 +215,21 @@ If you launched your server using the Quick Install script (Step 2.1), you only 
 2. **`DOMAINS`**: Enter your tunnel subdomain exactly (e.g., `["v.example.com"]`). **Note:** Currently, only provide ONE domain. Multi-domain support will be finalized in future updates.
 3. **`client_resolvers.txt`**: Resolver list file. Supported line formats are `IP`, `IP:PORT`, `CIDR`, and `CIDR:PORT` (for example `8.8.8.8`, `8.8.8.8:5353`, `1.1.1.0/24`, `1.1.1.0/24:99`). Empty/invalid lines are skipped. If the file is missing or has no valid entries, client startup fails.
 
-> âš ï¸ **Important Note 1 (Encryption):** The quick install script defaults the server encryption to `XOR`. Ensure that `DATA_ENCRYPTION_METHOD` in your client config is also set to `1` to match the server.
+> ⚠️ **Important Note 1 (Encryption):** The quick install script defaults the server encryption to `XOR`. Ensure that `DATA_ENCRYPTION_METHOD` in your client config is also set to `1` to match the server.
 > 
-> âš ï¸ **Important Note 2 (Connection):** The default protocol is `SOCKS5`. Once the client is running, you must configure your applications (Browser, Telegram, etc.) to use a SOCKS5 proxy pointing to `127.0.0.1` and the configured port (Default: `1080`). By default, this local proxy requires authentication with the username/password: `master_dns_vpn` (this can be changed in the config).
+> ⚠️ **Important Note 2 (Connection):** The default protocol is `SOCKS5`. Once the client is running, you must configure your applications (Browser, Telegram, etc.) to use a SOCKS5 proxy pointing to `127.0.0.1` and the configured port (Default: `1080`). By default, this local proxy requires authentication with the username/password: `master_dns_vpn` (this can be changed in the config).
 > 
-> âš ï¸ **Support:** If you encounter issues, please attach your error logs and exclusively open an issue on our [GitHub Issues](https://github.com/masterking32/MasterDnsVPN/issues) page.
+> ⚠️ **Support:** If you encounter issues, please attach your error logs and exclusively open an issue on our [GitHub Issues](https://github.com/masterking32/MasterDnsVPN/issues) page.
 
 ---
 
-## Section 3.2: Server Configuration (Manual Install) âš™ï¸
+## Section 3.2: Server Configuration (Manual Install) ⚙️
 
 If you **did not** use the script in Step 2.1 and want to configure the server manually, edit the `server_config.toml` file. Ensure that critical parameters like the encryption method and domain match **exactly** on both the server and client.
 
 ---
 
-## Section 3.3: Client Configuration Variables (`client_config.toml`) ðŸ“–
+## Section 3.3: Client Configuration Variables (`client_config.toml`) 📄
 
 The table below explains all available settings and their functions in the client:
 
@@ -295,7 +295,7 @@ The table below explains all available settings and their functions in the clien
 
 ---
 
-## Section 3.4: Server Configuration Variables (`server_config.toml`) ðŸ“–
+## Section 3.4: Server Configuration Variables (`server_config.toml`) 📄
 
 | Parameter | Default Value | Accepted Values | Description |
 |---------|--------------|------------------|-------|
@@ -335,9 +335,9 @@ The table below explains all available settings and their functions in the clien
 
 ---
 
-## Section 3.5: Better Understanding of MTU & Golden Settings for Fast Boot âš ï¸
+## Section 3.5: Better Understanding of MTU & Golden Settings for Fast Boot ⚠️
 
-### Section 3.5.1: MTU Concept in DNS Tunneling ðŸ“¦
+### Section 3.5.1: MTU Concept in DNS Tunneling 📦
 **MTU** stands for **Maximum Transmission Unit**â€”the maximum size of a data packet sent over the network. 
 In heavily filtered or disrupted networks, large packets are highly susceptible to being dropped. Lowering the MTU guarantees stability. Conversely, setting the MTU too low splits data into tiny fragments, massively increasing Protocol Overhead and crippling your speed.
 
@@ -349,11 +349,11 @@ This project's client utilizes an intelligent *Binary Search* algorithm upon lau
 
 ---
 
-### Section 3.5.2: Step-by-Step MTU Optimization Guide ðŸš€
+### Section 3.5.2: Step-by-Step MTU Optimization Guide 🚀
 
 Probing every resolver takes time. Follow these steps to find optimal values and slash client boot times to fractions of a second:
 
-#### Step 1: Initial Boot & Discovering the MTU Ceiling ðŸ•µï¸â€â™‚ï¸
+#### Step 1: Initial Boot & Discovering the MTU Ceiling 🕵️‍♂️
 After starting your server, run the client with default settings. Within the first second, the client calculates the theoretical maximum MTU based on your domain length and encryption overhead, printing a log similar to:
 ```text
 Domain: v.example.com -> MIN and MAX_UPLOAD_MTU = 133 | MIN and MAX_DOWNLOAD_MTU = 129
@@ -362,20 +362,20 @@ Domain: v.example.com -> MIN and MAX_UPLOAD_MTU = 133 | MIN and MAX_DOWNLOAD_MTU
 Once you see this line, terminate the program! These are your absolute ceiling values.
 Open `client_config.toml` and set `MAX_UPLOAD_MTU` exactly to the suggested number (e.g., `133`). This prevents the client from wasting time probing impossibly large sizes on future boots.
 
-#### Step 2: Full Resolver Probing ðŸ§ª
+#### Step 2: Full Resolver Probing 🧪
 
 Now add all your desired DNS resolvers to the config file and let the client run completely. This might take a while; be patient as the system tests every resolver.
 Once completed, a table will be printed showing the unique Upload and Download MTU capabilities of every successful resolver.
 
-#### Step 3: Establishing the Floor (Filtering Weak Resolvers) ðŸ§¹
+#### Step 3: Establishing the Floor (Filtering Weak Resolvers) 🧹
 
 Analyze the printed table to find a logical average. Suppose most resolvers passed an upload of `133`, but a few weak ones only managed `50`.
 Since the system forces the *lowest common MTU* globally across the tunnel, those weak resolvers will bottleneck your entire connection!
 To fix this, set `MIN_UPLOAD_MTU` in the config to `133`. The client will now automatically drop any resolver failing this baseline, preventing bottlenecks. Apply the same logic to `MIN_DOWNLOAD_MTU`.
 
-> ðŸ’¡ Note: The lower the MIN limit, the more resolvers connect, but overall speed and quality drop. The higher the MIN, the better the quality, but fewer resolvers may qualify. Find the sweet spot.
+> 💡 Note: The lower the MIN limit, the more resolvers connect, but overall speed and quality drop. The higher the MIN, the better the quality, but fewer resolvers may qualify. Find the sweet spot.
 
-### Section 3.5.3: Golden Trick for Fast Boot âš¡
+### Section 3.5.3: Golden Trick for Fast Boot ⚡
 
 If you want your client to boot **instantly** without spending time searching for MTU values, apply this technique:
 
@@ -392,15 +392,15 @@ MAX_DOWNLOAD_MTU = 129
 
 **What happens?** The client's binary search algorithm notices the floor and ceiling are identical. It aborts the search and tests that exact number *only once*. If the resolver replies, itâ€™s validated; if not, itâ€™s instantly dropped. This drastically skyrockets startup speeds!
 
-> âš ï¸ Extreme Emergencies: During catastrophic censorship/filtering events where connections constantly drop, you can lock both MIN and MAX to very low numbers (e.g., 50 or 60). Your speed will be heavily reduced, but you will maintain an unbreakable, stable connection through the firewall.
+> ⚠️ Extreme Emergencies: During catastrophic censorship/filtering events where connections constantly drop, you can lock both MIN and MAX to very low numbers (e.g., 50 or 60). Your speed will be heavily reduced, but you will maintain an unbreakable, stable connection through the firewall.
 
 Calculating and assigning correct MTU values is vital in this project for both speed and stability. Complete this step carefully to match your specific network environment.
 
 ---
 
-## Section 4: Emergencies & Troubleshooting ðŸš¨
+## Section 4: Emergencies & Troubleshooting 🚨
 
-### Section 4.1: Severe Network Outages (National Intranet) âš ï¸
+### Section 4.1: Severe Network Outages (National Intranet) ⚠️
 When the internet is completely cut off, packet loss is massive, and only DNS traffic is allowed, make the following tweaks in `client_config.toml` to guarantee connection:
 
 1. **Maximize Resolvers:** Find as many valid public DNS resolvers as possible and add them to `client_resolvers.txt`. Supported formats are `IP`, `IP:PORT`, `CIDR`, and `CIDR:PORT`. Mixing diverse resolvers (like Google `8.8.8.8`, Cloudflare `1.1.1.1`, Quad9 `9.9.9.9`, OpenDNS `208.67.222.222`) maximizes routing diversity.
@@ -409,7 +409,7 @@ When the internet is completely cut off, packet loss is massive, and only DNS tr
 - **Example:** Setting this to `5` means a packet is fired to 5 resolvers at once. Even if 4 routes are blocked or drop the packet, the 5th one delivers it! The server's ARQ layer natively detects and discards duplicates, keeping traffic smooth.
 - **Recommendation:** Values between `3` and `6` are ideal during extreme disruptions. However, reckless duplication without having enough actual resolvers will overload the few you have and degrade performance.
 
-### Section 4.2: Port 53 Conflict (Linux Server) ðŸ›‘
+### Section 4.2: Port 53 Conflict (Linux Server) 🛑
 In most Linux distributions (like Ubuntu), Port `53` is occupied by the `systemd-resolved` service by default. If the server throws a port binding error, you must disable the stub listener. Run these commands sequentially on your server:
 
 1. Open the config file for editing:
@@ -427,11 +427,11 @@ sudo systemctl restart systemd-resolved
 sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 ```
 
-> âš ï¸ **Warning:** You cannot run multiple DNS Tunneling tools (e.g., DNSTT, SlipStream, and MasterDnsVPN) simultaneously on the same server! Port 53 can only belong to one application.
+> ⚠️ **Warning:** You cannot run multiple DNS Tunneling tools (e.g., DNSTT, SlipStream, and MasterDnsVPN) simultaneously on the same server! Port 53 can only belong to one application.
 
 ---
 
-## Section 5: Architecture & Workflow ðŸ› ï¸
+## Section 5: Architecture & Workflow 🛠️
 
 **MasterDnsVPN** shatters the limits of standard DNS tunnels by combining Session Multiplexing and a custom Automatic Repeat reQuest (ARQ) reliability layer entirely over connectionless UDP/DNS protocols.
 
@@ -439,20 +439,20 @@ sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 ```mermaid
 graph TD
-    subgraph Client_Side ["ðŸ–¥ï¸ User System (Client)"]
-        App["ðŸ“± Apps (Browser, Telegram, etc.)"]
-        Client["ðŸ MasterDnsVPN Client<br>(SOCKS5/TCP Proxy)"]
+    subgraph Client_Side ["🖥️ User System (Client)"]
+        App["📱 Apps (Browser, Telegram, etc.)"]
+        Client["🐍 MasterDnsVPN Client<br>(SOCKS5/TCP Proxy)"]
     end
 
-    subgraph DNS_Network ["ðŸŒ Public DNS Network"]
-        R1["ðŸ“¡ Resolver 1 (e.g., 8.8.8.8)"]
-        R2["ðŸ“¡ Resolver 2 (e.g., 1.1.1.1)"]
-        RN["ðŸ“¡ ... Other Resolvers"]
+    subgraph DNS_Network ["🌐 Public DNS Network"]
+        R1["📡 Resolver 1 (e.g., 8.8.8.8)"]
+        R2["📡 Resolver 2 (e.g., 1.1.1.1)"]
+        RN["📡 ... Other Resolvers"]
     end
 
-    subgraph Server_Side ["ðŸ–¥ï¸ Remote Server (Server)"]
-        Server["ðŸ MasterDnsVPN Server<br>(Listening on Port 53)"]
-        Target["ðŸŒ Free Internet<br>(or External Proxy)"]
+    subgraph Server_Side ["🖥️ Remote Server (Server)"]
+        Server["🐍 MasterDnsVPN Server<br>(Listening on Port 53)"]
+        Target["🌐 Free Internet<br>(or External Proxy)"]
     end
 
     App -->|"TCP Traffic"| Client
@@ -471,15 +471,15 @@ graph TD
     Client -->|"Deliver Intact Data"| App
 ```
 
-### Section 5.2: Packet Lifecycle ðŸ”„
+### Section 5.2: Packet Lifecycle 🔄
 
 ```mermaid
 sequenceDiagram
-    participant App as ðŸ“± User App
-    participant Client as ðŸ Client (ARQ Layer)
-    participant DNS as ðŸ“¡ DNS Resolvers
-    participant Server as ðŸ–¥ï¸ Server (ARQ Layer)
-    participant Target as ðŸŒ Final Destination
+    participant App as 📱 User App
+    participant Client as 🐍 Client (ARQ Layer)
+    participant DNS as 📡 DNS Resolvers
+    participant Server as 🖥️ Server (ARQ Layer)
+    participant Target as 🌐 Final Destination
 
     App->>Client: Send continuous TCP data
     Note over Client: 1. Fragment data based on MTU<br>2. Encrypt & add custom header<br>3. Assign Sequence Number
@@ -495,7 +495,7 @@ sequenceDiagram
     Client-->>App: Deliver intact data to User App
 ```
 
-### Section 5.3: Core Concepts Explained ðŸ§ 
+### Section 5.3: Core Concepts Explained 🧠
 
 | Concept | System Function |
 | :--- | :--- |
@@ -507,24 +507,24 @@ sequenceDiagram
 
 ---
 
-## Section 6: Advanced Tech Notes âš™ï¸
+## Section 6: Advanced Tech Notes ⚙️
 
-- âš¡ **Direct SOCKS5 (Fast-Connect):** Setting `USE_EXTERNAL_SOCKS5` to `false` in the server allows the native Python backend to route Client traffic directly to the destination without middleware (like Dante or Xray), vastly reducing Latency.
-- ðŸ”„ **Adaptive Polling:** The Client features a smart back-off system (Ping Manager). During idle periods, it reduces Keep-Alive transmission frequency, significantly reducing DNS network spam and load.
-- ðŸ”’ **Cryptography Library:** Installing this library is required for high-tier encryption (AES-GCM/ChaCha20). However, for low-resource hardware like basic routers, the built-in, highly optimized `XOR` (Method 1) requires zero dependencies and executes blazing fast natively.
+- ⚡ **Direct SOCKS5 (Fast-Connect):** Setting `USE_EXTERNAL_SOCKS5` to `false` in the server allows the native Python backend to route Client traffic directly to the destination without middleware (like Dante or Xray), vastly reducing Latency.
+- 🔄 **Adaptive Polling:** The Client features a smart back-off system (Ping Manager). During idle periods, it reduces Keep-Alive transmission frequency, significantly reducing DNS network spam and load.
+- 🔒 **Cryptography Library:** Installing this library is required for high-tier encryption (AES-GCM/ChaCha20). However, for low-resource hardware like basic routers, the built-in, highly optimized `XOR` (Method 1) requires zero dependencies and executes blazing fast natively.
 
 ---
 
-## ðŸ¤ Contributing
+## 🤝 Contributing
 Contributions are absolutely welcome! If you have ideas, bug fixes, or performance tweaks, please Fork the project and submit a Pull Request. Exclusively report bugs or errors in the [Issues](https://github.com/masterking32/MasterDnsVPN/issues) section.
 
 ---
 
-## ðŸ“„ License
+## 📄 License
 This project is released under the **MIT** License. Use, modification, and distribution are free under license terms. Refer to the `LICENSE` file for full details.
 
 ---
 
-## ðŸ‘¨â€ðŸ’» Developer
-Developed with â¤ï¸ by: [**MasterkinG32**](https://github.com/masterking32)
+## 👨‍💻 Developer
+Developed with ❤️ by: [**MasterkinG32**](https://github.com/masterking32)
 
