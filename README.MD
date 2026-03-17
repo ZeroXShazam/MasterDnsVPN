@@ -1,4 +1,4 @@
-﻿# 🚀 MasterDnsVPN Project
+# 🚀 MasterDnsVPN Project
 
 ## [نسخه فارسی](https://github.com/masterking32/MasterDnsVPN/blob/main/README_FA.MD) | [English Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README.MD) | [Spanish Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README_ES.MD)
 
@@ -91,11 +91,31 @@ In the DNS protocol, the length of your domain name consumes part of the very li
 
 You can install and run this project using two methods: the fast, pre-compiled automated method (Recommended), or directly from the Python source code.
 
-### 🐧 Step 2.1: Quick Linux Server Setup
+### ⚡ One-liner installer
 
-If you want to set up the server on a Linux machine, the easiest way is using the automated installation script. Simply run the following command in your server's terminal:
+Install from source (client + configs) or run the Linux server installer with a single command:
 
 ```bash
+# From source (clone, venv, pip, configs) — client or dev use
+curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | bash
+
+# Linux server (prebuilt binary + systemd) — run with sudo
+curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | sudo bash -s -- server
+```
+
+Default install directory is `~/MasterDnsVPN` for source; server installs to `/opt/MasterDnsVPN`. Override with `INSTALL_DIR=~/my_dir ...` or `SERVER_INSTALL_DIR=/path ...` respectively.
+
+---
+
+### 🐧 Step 2.1: Quick Linux Server Setup
+
+If you want to set up the server on a Linux machine, the easiest way is using the automated installation script. You can use either the **one-liner installer** (see above) with `server`, or run the server script directly:
+
+```bash
+# Option A: unified one-liner (installs to /opt/MasterDnsVPN)
+curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | sudo bash -s -- server
+
+# Option B: server script only (installs into current directory)
 bash <(curl -Ls https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/server_linux_install.sh)
 ```
 
