@@ -1,6 +1,6 @@
 # 🚀 MasterDnsVPN Project
 
-## [نسخه فارسی](https://github.com/masterking32/MasterDnsVPN/blob/main/README_FA.MD) | [English Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README.MD) | [Spanish Version](https://github.com/masterking32/MasterDnsVPN/blob/main/README_ES.MD)
+## [نسخه فارسی](https://github.com/ZeroXShazam/MasterDnsVPN/blob/main/README_FA.MD) | [English Version](https://github.com/ZeroXShazam/MasterDnsVPN/blob/main/README.MD) | [Spanish Version](https://github.com/ZeroXShazam/MasterDnsVPN/blob/main/README_ES.MD)
 
 The **MasterDnsVPN** project is a robust, low-overhead, and advanced solution for bypassing internet censorship and filtering by hiding and encapsulating TCP traffic within DNS queries.
 
@@ -97,10 +97,10 @@ Install from source (client + configs) or run the Linux server installer with a 
 
 ```bash
 # From source (clone, venv, pip, configs) — client or dev use
-curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main/install.sh | bash
 
 # Linux server (prebuilt binary + systemd) — run with sudo
-curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | sudo bash -s -- server
+curl -sSL https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main/install.sh | sudo bash -s -- server
 ```
 
 Default install directory is `~/MasterDnsVPN` for source; server installs to `/opt/MasterDnsVPN`. Override with `INSTALL_DIR=~/my_dir ...` or `SERVER_INSTALL_DIR=/path ...` respectively.
@@ -113,10 +113,10 @@ If you want to set up the server on a Linux machine, the easiest way is using th
 
 ```bash
 # Option A: unified one-liner (installs to /opt/MasterDnsVPN)
-curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | sudo bash -s -- server
+curl -sSL https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main/install.sh | sudo bash -s -- server
 
 # Option B: server script only (installs into current directory)
-bash <(curl -Ls https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/server_linux_install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main/server_linux_install.sh)
 ```
 
 This command downloads a script from GitHub and automatically handles the entire installation and configuration process. Once finished, the server will start, and an **Encryption Key** will be displayed in the terminal logs. Make sure to copy this key (it is also saved in `encrypt_key.txt` next to the server executable for convenience), as you will need it to connect the client.
@@ -139,11 +139,11 @@ For your convenience, the client executables (and servers for other OSs) are pre
 
 | Operating System (OS) | Architecture | Suitable For... | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| Windows 🪟 | `AMD64` (64-bit) | Windows 10 & 11 | [Download Windows Version ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Windows_AMD64.zip) |
-| macOS 🍎 | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac (Apple Silicon) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_MacOS_ARM64.zip) |
-| Linux 🐧 | `AMD64` (64-bit) | Newer distros (Ubuntu 22.04+, Debian 12+) | [Download Linux (New) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_AMD64.zip) |
-| Linux (Legacy) 🐧 | `AMD64` (64-bit) | Older distros (Ubuntu 20.04, Debian 11) | [Download Linux (Legacy) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux-Legacy_AMD64.zip) |
-| Linux (ARM) 🐧 | `ARM64` | ARM servers, Raspberry Pi, etc. | [Download Linux (ARM) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_ARM64.zip) |
+| Windows 🪟 | `AMD64` (64-bit) | Windows 10 & 11 | [Download Windows Version ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Windows_AMD64.zip) |
+| macOS 🍎 | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac (Apple Silicon) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_MacOS_ARM64.zip) |
+| Linux 🐧 | `AMD64` (64-bit) | Newer distros (Ubuntu 22.04+, Debian 12+) | [Download Linux (New) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_AMD64.zip) |
+| Linux (Legacy) 🐧 | `AMD64` (64-bit) | Older distros (Ubuntu 20.04, Debian 11) | [Download Linux (Legacy) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux-Legacy_AMD64.zip) |
+| Linux (ARM) 🐧 | `ARM64` | ARM servers, Raspberry Pi, etc. | [Download Linux (ARM) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Client_Linux_ARM64.zip) |
 
 *(Windows and Mac users can extract the file and immediately proceed to Section 3 for configuration).*
 
@@ -152,11 +152,11 @@ For your convenience, the client executables (and servers for other OSs) are pre
 
 | Operating System (OS) | Architecture | Suitable For... | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| Windows 🪟 | `AMD64` (64-bit) | Windows Server, Windows 10 & 11 | [Download Windows Server ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Windows_AMD64.zip) |
-| Linux 🐧 | `AMD64` (64-bit) | Ubuntu 22.04+, Debian 12+ servers | [Download Linux Server (New) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_AMD64.zip) |
-| Linux (Legacy) 🐧 | `AMD64` (64-bit) | Older servers (Ubuntu 20.04, Debian 11) | [Download Linux Server (Legacy) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux-Legacy_AMD64.zip) |
-| Linux (ARM) 🐧 | `ARM64` | ARM cloud servers | [Download Linux Server (ARM) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_ARM64.zip) |
-| macOS 🍎 | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac Server (Apple Silicon) ⬇️](https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_MacOS_ARM64.zip) |
+| Windows 🪟 | `AMD64` (64-bit) | Windows Server, Windows 10 & 11 | [Download Windows Server ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Windows_AMD64.zip) |
+| Linux 🐧 | `AMD64` (64-bit) | Ubuntu 22.04+, Debian 12+ servers | [Download Linux Server (New) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_AMD64.zip) |
+| Linux (Legacy) 🐧 | `AMD64` (64-bit) | Older servers (Ubuntu 20.04, Debian 11) | [Download Linux Server (Legacy) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux-Legacy_AMD64.zip) |
+| Linux (ARM) 🐧 | `ARM64` | ARM cloud servers | [Download Linux Server (ARM) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_ARM64.zip) |
+| macOS 🍎 | `ARM64` | Newer Macs (M1 / M2 / M3) | [Download Mac Server (Apple Silicon) ⬇️](https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_MacOS_ARM64.zip) |
 
 ---
 
@@ -209,7 +209,7 @@ To run the source code, Python must be installed. Run the following commands in 
 
 ```bash
 # Clone the repository and install dependencies
-git clone https://github.com/masterking32/MasterDnsVPN.git
+git clone https://github.com/ZeroXShazam/MasterDnsVPN.git
 cd MasterDnsVPN
 pip install -r requirements.txt
 
@@ -239,7 +239,7 @@ If you launched your server using the Quick Install script (Step 2.1), you only 
 > 
 > ⚠️ **Important Note 2 (Connection):** The default protocol is `SOCKS5`. Once the client is running, you must configure your applications (Browser, Telegram, etc.) to use a SOCKS5 proxy pointing to `127.0.0.1` and the configured port (Default: `1080`). By default, this local proxy requires authentication with the username/password: `master_dns_vpn` (this can be changed in the config).
 > 
-> ⚠️ **Support:** If you encounter issues, please attach your error logs and exclusively open an issue on our [GitHub Issues](https://github.com/masterking32/MasterDnsVPN/issues) page.
+> ⚠️ **Support:** If you encounter issues, please attach your error logs and exclusively open an issue on our [GitHub Issues](https://github.com/ZeroXShazam/MasterDnsVPN/issues) page.
 
 ---
 
@@ -536,7 +536,7 @@ sequenceDiagram
 ---
 
 ## 🤝 Contributing
-Contributions are absolutely welcome! If you have ideas, bug fixes, or performance tweaks, please Fork the project and submit a Pull Request. Exclusively report bugs or errors in the [Issues](https://github.com/masterking32/MasterDnsVPN/issues) section.
+Contributions are absolutely welcome! If you have ideas, bug fixes, or performance tweaks, please Fork the project and submit a Pull Request. Exclusively report bugs or errors in the [Issues](https://github.com/ZeroXShazam/MasterDnsVPN/issues) section.
 
 ---
 

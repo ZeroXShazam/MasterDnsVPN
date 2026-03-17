@@ -222,7 +222,7 @@ log_success "Kernel and file descriptor limits configured."
 log_header "Fetching Latest Release"
 ARCH="$(uname -m)"
 if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
-  URL="https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_ARM64.zip"
+  URL="https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_ARM64.zip"
   PREFIX="MasterDnsVPN_Server_Linux_ARM64"
 elif [[ "$ARCH" == "x86_64" ]]; then
   LEGACY=0
@@ -230,10 +230,10 @@ elif [[ "$ARCH" == "x86_64" ]]; then
   [[ "${ID:-}" == "debian" && ${VERSION_ID%%.*} -le 11 ]] && LEGACY=1
   if [[ $LEGACY -eq 1 ]]; then
     log_info "Legacy system detected (GLIBC compatibility mode)."
-    URL="https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux-Legacy_AMD64.zip"
+    URL="https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux-Legacy_AMD64.zip"
     PREFIX="MasterDnsVPN_Server_Linux-Legacy_AMD64"
   else
-    URL="https://github.com/masterking32/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_AMD64.zip"
+    URL="https://github.com/ZeroXShazam/MasterDnsVPN/releases/latest/download/MasterDnsVPN_Server_Linux_AMD64.zip"
     PREFIX="MasterDnsVPN_Server_Linux_AMD64"
   fi
 else

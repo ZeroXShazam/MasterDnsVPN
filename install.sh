@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # MasterDnsVPN one-liner installer
 # Usage:
-#   From source (client/dev):  curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | bash
-#   Server (Linux, prebuilt):  curl -sSL https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main/install.sh | sudo bash -s -- server
+#   From source (client/dev):  curl -sSL https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main/install.sh | bash
+#   Server (Linux, prebuilt):  curl -sSL https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main/install.sh | sudo bash -s -- server
 
 set -euo pipefail
 IFS=$'\n\t'
 
-REPO_URL="${REPO_URL:-https://github.com/masterking32/MasterDnsVPN}"
-RAW_URL="${RAW_URL:-https://raw.githubusercontent.com/masterking32/MasterDnsVPN/main}"
+REPO_URL="${REPO_URL:-https://github.com/ZeroXShazam/MasterDnsVPN}"
+RAW_URL="${RAW_URL:-https://raw.githubusercontent.com/ZeroXShazam/MasterDnsVPN/main}"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/MasterDnsVPN}"
 MODE="${1:-}"
 MODE_LC="$(echo "$MODE" | tr '[:upper:]' '[:lower:]')"
